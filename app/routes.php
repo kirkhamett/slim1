@@ -11,16 +11,15 @@ use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
 /**
  * 
- * Ideally, this should be in a controller or helper file
+ * Ideally, this should be in a helper file
  * @param $tree
  * @param null $parentId
  * @return array
  * 
- * reference: https://akki.ca/blog/php-convert-adjacency-set-to-nested-json/
  */
 function transformTree($tree, $parentId = null)
 {
-    $output = [];
+    $result = [];
     foreach ($tree as $node) {
 
         if ($node['parent_id'] == $parentId) {
@@ -29,11 +28,18 @@ function transformTree($tree, $parentId = null)
             if ($children) {
                 $node['children'] = $children;
             }
-            $output[] = $node;
+
+            // @note flag for checkbox state; default to false - not checked
+            $node['isChecked'] = false;
+
+            // @note flag for search filter; default to true - in filter
+            $node['inFilter'] = true;
+
+            $result[] = $node;
             unset($node);
         }        
     }
-    return $output;
+    return $result;
 }
 
 return function (App $app) {
@@ -52,20 +58,24 @@ return function (App $app) {
         $group->get('/{id}', ViewUserAction::class);
     });
     
+    /**
+     * @note: this should be moved to a secure location, probably in .env file
+     * or better yet in the DB for per-client token assignment
+     * 
+     * test token below
+     * eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6ImV4YW1wbGVfdG9rZW4ifQ.kQ4P_7brMqjO5uOeAJTuCysLbyrSsTzC7T4x0t0BhlE
+    */    
+    $secret = 'example_key';
     $app->add(new Tuupola\Middleware\JwtAuthentication([
-        // @note: this should be moved to a secure location, probably in .env file
-        // test token below
-        // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6ImV4YW1wbGVfdG9rZW4ifQ.kQ4P_7brMqjO5uOeAJTuCysLbyrSsTzC7T4x0t0BhlE
-        "secret" => "example_key"
+        "secret" => $secret
     ]));
 
     /** 
-     *  Ideally:
-     *  route logic can be moved to a an action or controller
-     *  
+     * @note: Ideally:
+     * route logic can be moved to a an action or controller for scalability, readability, 
+     * and testability
      *
-     */
-    
+     */    
     $app->get('/facet', function (Request $request, Response $response) {
         $db = $this->get(PDO::class);
         // @note: ideally my preference is to use MTPP (modified pre-order tree traversal) over adjacency sets
@@ -91,8 +101,20 @@ return function (App $app) {
         
         if (!empty($data)) {     
             // facets found
-            $result = transformTree($data, 0);    
-            $payload = json_encode(['collection' => $result]);
+            $result = transformTree($data, 0); 
+
+            // add the root node
+            $root = new stdClass();
+            $root->id = 0;
+            $root->name = '';
+            $root->isChecked = true;
+            $root->parent_id = 0;
+            $root->children = $result;
+            $main = new stdClass();
+            $main->root = $root;
+
+            
+            $payload = json_encode(['main' => $main]);
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');
         }
