@@ -29,11 +29,15 @@ function transformTree($tree, $parentId = null)
                 $node['children'] = $children;
             }
 
-            // @note flag for checkbox state; default to false - not checked
+            // flag for checkbox state; default to false - not checked
             $node['isChecked'] = false;
 
-            // @note flag for search filter; default to true - in filter
-            $node['inFilter'] = true;
+            // flag for search filter; default to true - in filter
+            $node['isVisible'] = true;
+            
+            // flag for expand/collapse. top level should be open by default
+            $node['isClosed'] = ($node['parent_id'] > 0) ? false : true;
+            
 
             $result[] = $node;
             unset($node);
@@ -106,15 +110,26 @@ return function (App $app) {
             // add the root node
             $root = new stdClass();
             $root->id = 0;
-            $root->name = '';
+            $root->name = 'Root element';
             $root->isChecked = true;
             $root->parent_id = 0;
             $root->children = $result;
             $main = new stdClass();
             $main->root = $root;
 
-            
-            $payload = json_encode(['main' => $main]);
+            // tree options go here, ideally from a config or cms
+            // some ideas: enableDelete, enableCollapse, etc
+            $options = [
+                'title' => 'Kleding facetten',
+                'btnResetText' => 'Refresh List',
+                'btnDeleteText' => 'Delete Selected',
+                'btnClearText' => 'Clear Selection',
+                'searchLabel' => 'Search',
+                'searchPlaceholder' => 'Enter search keyword here',
+            ];
+
+
+            $payload = json_encode(['main' => $main, 'options' => $options]);
             $response->getBody()->write($payload);
             return $response->withHeader('Content-Type', 'application/json');
         }
