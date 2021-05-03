@@ -1,0 +1,49 @@
+{
+	"info": {
+		"_postman_id": "2ddfc4be-df4b-4843-8743-fba7bbe4598f",
+		"name": "CodingChiefs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Facets",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				},
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbiI6ImV4YW1wbGVfdG9rZW4ifQ.kQ4P_7brMqjO5uOeAJTuCysLbyrSsTzC7T4x0t0BhlE",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "http://localhost:8080/facet",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"facet"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

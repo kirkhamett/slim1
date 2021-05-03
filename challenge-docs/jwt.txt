@@ -1,0 +1,11 @@
+// generate token
+
+use \Firebase\JWT\JWT;
+
+$key = "example_key";
+$payload = array(
+    "token" => 'example_token',
+);
+
+$jwt = JWT::encode($payload, $key);
+$decoded = JWT::decode($jwt, $key, array('HS256'));
