@@ -35,8 +35,8 @@ function transformTree($tree, $parentId = null)
             // flag for search filter; default to true - in filter
             $node['isVisible'] = true;
             
-            // flag for expand/collapse. top level should be open by default
-            $node['isClosed'] = ($node['parent_id'] > 0) ? false : true;
+            // flag for expand/collapse; default is true 
+            $node['isClosed'] = true;
             
 
             $result[] = $node;
@@ -112,6 +112,7 @@ return function (App $app) {
             $root->id = 0;
             $root->name = 'Root element';
             $root->isChecked = true;
+            $root->isClosed = false;
             $root->parent_id = 0;
             $root->children = $result;
             $main = new stdClass();
